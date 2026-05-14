@@ -20,20 +20,7 @@
 
 ### 1. 配置 API 密钥
 
-在运行程序前，设置百度 OCR 的 API 密钥。有两种方式：
-
-**方式 A：环境变量（推荐用于生产环境）**
-```bash
-# Windows PowerShell
-[Environment]::SetEnvironmentVariable("BAIDU_API_KEY", "your_api_key", "User")
-[Environment]::SetEnvironmentVariable("BAIDU_SECRET_KEY", "your_secret_key", "User")
-
-# 或在 Windows 命令提示符
-setx BAIDU_API_KEY "your_api_key"
-setx BAIDU_SECRET_KEY "your_secret_key"
-```
-
-**方式 B：运行时输入（用于测试）**
+在运行程序前，设置百度 OCR 的 API 密钥。
 - 启动程序后，在 textBox3 和 textBox4 中输入 API Key 和 Secret Key
 - 点击"开始识别"按钮时会自动验证和初始化
 
