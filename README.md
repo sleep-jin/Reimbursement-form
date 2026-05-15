@@ -166,14 +166,12 @@ flowchart TD
     E --> F["🧹 清洗文本<br/>去除空白与特殊字符"]
     F --> G["🔍 分类匹配<br/>文本是否含分类关键词"]
     G -->|匹配成功| H["🖼️ PDF 转图像<br/>Spire.PDF 600x600"]
-    G -->|未匹配| D
     H --> I["🎯 OpenCV 模板匹配<br/>定位 ROI 并裁剪"]
     I --> J["🤖 百度 OCR 识别<br/>BaiduOcrSync"]
     J --> K["📝 获取各字段识别结果<br/>发票号、金额、日期等"]
     K --> L["📊 按自定义格式整合<br/>string.Format"]
     L --> M["💾 存储结果<br/>ExName / PDFName 字典"]
-    M --> D
-    D --> N["✅ 识别结束"]
+    M --> N["✅ 识别结束"]
     N --> O["📗 导出 Excel<br/>ExcelShow / EPPlus"]
     N --> P["📕 导出 PDF<br/>FileExportService.CopyFiles"]
 
