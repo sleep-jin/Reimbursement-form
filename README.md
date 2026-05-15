@@ -20,20 +20,7 @@
 
 ### 1. 配置 API 密钥
 
-在运行程序前，设置百度 OCR 的 API 密钥。有两种方式：
-
-**方式 A：环境变量（推荐用于生产环境）**
-```bash
-# Windows PowerShell
-[Environment]::SetEnvironmentVariable("BAIDU_API_KEY", "your_api_key", "User")
-[Environment]::SetEnvironmentVariable("BAIDU_SECRET_KEY", "your_secret_key", "User")
-
-# 或在 Windows 命令提示符
-setx BAIDU_API_KEY "your_api_key"
-setx BAIDU_SECRET_KEY "your_secret_key"
-```
-
-**方式 B：运行时输入（用于测试）**
+在运行程序前，设置百度 OCR 的 API 密钥。
 - 启动程序后，在 textBox3 和 textBox4 中输入 API Key 和 Secret Key
 - 点击"开始识别"按钮时会自动验证和初始化
 
@@ -172,29 +159,31 @@ dotnet run
 
 ```mermaid
 flowchart TD
-	A["📂 选择 PDF 文件"] --> B["🔍 PDF 转文字判断"]
-	B -->|成功提取文本| C["✅ 使用提取的文本<br/>PdfPig库"]
-	B -->|无法提取文本| D["🖼️ PDF 转换为图像<br/>Spire.PDF 600x600"]
-    C --> E["📋 文本内容分析<br/>清洗空白与特殊字符"]
-    D --> F["🎯 OpenCV 模板匹配<br/>定位关键区域 ROI"]
-    F --> G["📍 裁剪目标区域图像"]
-    G --> H["🤖 调用百度 OCR API<br/>BaiduOcrSync 同步客户端"]
-    E --> I["📝 获取识别结果<br/>文字、数字、金额等"]
-    H --> I
-    I --> J["🔗 按模板字段分类<br/>发票号、金额、日期等"]
-    J --> K["📊 按自定义格式整合<br/>使用 string.Format"]
-    K --> L["💾 导出结果"]
-    L -->|Excel| M["📗 ExcelShow 窗口<br/>EPPlus 库导出"]
-    L -->|PDF| N["📕 异步导出 PDF<br/>FileExportService<br/>处理重名和权限"]
+    A["📂 选择源文件夹<br/>加载 PDF 文件列表"] --> B["🔑 初始化 OCR 服务<br/>验证 API Key / Secret"]
+    B --> C["📋 加载模板配置<br/>TemplateService.LoadAll"]
+    C --> D["📄 遍历每个 PDF 文件"]
+    D --> E["📝 提取 PDF 文本<br/>PdfPig"]
+    E --> F["🧹 清洗文本<br/>去除空白与特殊字符"]
+    F --> G["🔍 分类匹配<br/>文本是否含分类关键词"]
+    G -->|匹配成功| H["🖼️ PDF 转图像<br/>Spire.PDF 600x600"]
+    G -->|未匹配| D
+    H --> I["🎯 OpenCV 模板匹配<br/>定位 ROI 并裁剪"]
+    I --> J["🤖 百度 OCR 识别<br/>BaiduOcrSync"]
+    J --> K["📝 获取各字段识别结果<br/>发票号、金额、日期等"]
+    K --> L["📊 按自定义格式整合<br/>string.Format"]
+    L --> M["💾 存储结果<br/>ExName / PDFName 字典"]
+    M --> D
+    D --> N["✅ 识别结束"]
+    N --> O["📗 导出 Excel<br/>ExcelShow / EPPlus"]
+    N --> P["📕 导出 PDF<br/>FileExportService.CopyFiles"]
 
     style A fill:#e1f5ff
     style B fill:#fff3e0
     style C fill:#f3e5f5
-    style D fill:#f3e5f5
-    style F fill:#fff9c4
-    style H fill:#c8e6c9
-    style K fill:#f8bbd0
-    style L fill:#c5e1a5
+    style G fill:#fff9c4
+    style I fill:#c8e6c9
+    style L fill:#f8bbd0
+    style N fill:#c5e1a5
 ```
 
 ### 核心流程说明
