@@ -10,7 +10,7 @@ namespace 发票
 {
     public partial class MakeModes : Form
     {
-        private ZoomImageBox zoomBox;
+        private ZoomImageBox zoomBox = null!;
         private List<TemplateInfo> templates = new List<TemplateInfo>();
         string FileName = "";
         private enum SelectMode
@@ -20,15 +20,15 @@ namespace 发票
             SelectROI
         }
         private SelectMode currentMode = SelectMode.None;
-        private TemplateInfo currentTemplate = null;
+        private TemplateInfo? currentTemplate;
 
         public class TemplateInfo
         {
-            public Image Image { get; set; }
-            public string ClassName { get; set; }
-            public string ROI { get; set; }
+            public Image? Image { get; set; }
+            public string ClassName { get; set; } = string.Empty;
+            public string ROI { get; set; } = string.Empty;
             public Rectangle TemplateRect { get; set; }
-            public Image TemplateImage { get; set; }
+            public Image? TemplateImage { get; set; }
         }
 
         public MakeModes(Image image, string classnaem)
@@ -57,7 +57,7 @@ namespace 发票
                 zoomBox.SetImage(image);
         }
 
-        private void ZoomBox_SelectionCompleted(object sender, EventArgs e)
+        private void ZoomBox_SelectionCompleted(object? sender, EventArgs e)
         {
             Rectangle imgRect = zoomBox.SelectedImageRect;
 
@@ -96,7 +96,8 @@ namespace 发票
             }
 
             // 截取模板图像（用于表格显示）
-            Image templateImage = CropImage(zoomBox.Image, templateRect);
+            if (zoomBox.Image == null) return;
+            Image? templateImage = CropImage(zoomBox.Image, templateRect);
             if (templateImage == null) return;
 
             currentTemplate = new TemplateInfo
@@ -166,9 +167,9 @@ namespace 发票
             dataGridView1.Rows[rowIndex].Height = 100;
         }
 
-        private Image CropImage(Image source, Rectangle rect)
+        private Image? CropImage(Image? source, Rectangle rect)
         {
-            if (rect.Width <= 0 || rect.Height <= 0) return null;
+            if (source == null || rect.Width <= 0 || rect.Height <= 0) return null;
             Bitmap bmp = new Bitmap(rect.Width, rect.Height);
             using (Graphics g = Graphics.FromImage(bmp))
             {
@@ -275,7 +276,7 @@ namespace 发票
                 return;
             }
 
-            string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory+"Templates", FileName);
+            string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", FileName);
             Directory.CreateDirectory(baseDir);
 
             var config = new TemplateConfig();
@@ -351,7 +352,7 @@ namespace 发票
         }
         private void MakeModes_Load(object sender, EventArgs e)
         {
-            string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory + "\\Templates", FileName);
+            string baseDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", FileName);
             string configPath = Path.Combine(baseDir, $"{FileName}.json");
 
             if (!File.Exists(configPath))
@@ -384,7 +385,7 @@ namespace 发票
                 foreach (var item in config.Templates)
                 {
                     string imgPath = Path.Combine(baseDir, item.ImageFile);
-                    Image img = null;
+                    Image? img = null;
 
                     if (File.Exists(imgPath))
                     {

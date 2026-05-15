@@ -8,7 +8,7 @@ namespace 发票
 {
     public class ZoomImageBox : Control
     {
-        private Image _image;
+        private Image? _image;
         private float _zoom = 1.0f;
         private Point _panOffset = Point.Empty;
         private bool _isPanning = false;
@@ -27,7 +27,7 @@ namespace 发票
         public Point PanOffset => _panOffset;
         public Rectangle SelectedImageRect => _imageSelectRect;
 
-        public event EventHandler SelectionCompleted;
+        public event EventHandler? SelectionCompleted;
 
         public ZoomImageBox()
         {
@@ -122,7 +122,8 @@ namespace 发票
                 if (_selectRect.Width > 5 && _selectRect.Height > 5)
                 {
                     _imageSelectRect = ScreenToImageRect(_selectRect);
-                    _imageSelectRect.Intersect(new Rectangle(0, 0, _image.Width, _image.Height));
+                    if (_image != null)
+                        _imageSelectRect.Intersect(new Rectangle(0, 0, _image.Width, _image.Height));
 
                     if (_imageSelectRect.Width > 0 && _imageSelectRect.Height > 0)
                     {

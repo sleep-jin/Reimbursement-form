@@ -27,7 +27,7 @@ namespace 发票
                 string jsonPath = Path.Combine(folder, $"{name}.json");
                 if (!File.Exists(jsonPath)) continue;
                 string json = File.ReadAllText(jsonPath);
-                var root = JsonSerializer.Deserialize<TemplateRoot>(json);
+                var root = JsonSerializer.Deserialize<TemplateConfig>(json);
                 if (root?.Templates != null)
                 {
                     result[name] = root.Templates;

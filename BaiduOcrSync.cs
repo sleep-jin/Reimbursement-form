@@ -10,9 +10,10 @@ namespace 发票
     {
         private readonly string _apiKey;
         private readonly string _secretKey;
-        private string _accessToken = "";
+        private string _accessToken = string.Empty;
         private DateTime _tokenExpireTime = DateTime.MinValue;
         private static readonly HttpClient _client = new HttpClient();
+        private static readonly object _tokenLock = new object();
 
         public BaiduOcrSync(string apiKey, string secretKey)
         {
@@ -78,7 +79,7 @@ namespace 发票
                 // 错误处理
                 if (root.TryGetProperty("error_code", out _))
                 {
-                    System.Diagnostics.Debug.WriteLine($"OCR错误: {root.GetProperty("error_msg").GetString()}");
+                    System.Diagnostics.Debug.WriteLine($"OCR错误: {root.GetProperty("error_msg").GetString() ?? string.Empty}");
                     return "";
                 }
 
@@ -86,7 +87,7 @@ namespace 发票
                 var sb = new StringBuilder();
                 foreach (var item in root.GetProperty("words_result").EnumerateArray())
                 {
-                    sb.Append(item.GetProperty("words").GetString());
+                    sb.Append(item.GetProperty("words").GetString() ?? string.Empty);
                 }
 
                 return sb.ToString();
@@ -109,26 +110,35 @@ namespace 发票
                 return _accessToken;
             }
 
-            try
+            lock (_tokenLock)
             {
-                string url = $"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={_apiKey}&client_secret={_secretKey}";
-                var response = _client.GetStringAsync(url).GetAwaiter().GetResult();
-                using var doc = JsonDocument.Parse(response);
-                var root = doc.RootElement;
+                // 双重检查，避免重复获取
+                if (!string.IsNullOrEmpty(_accessToken) && DateTime.Now < _tokenExpireTime)
+                {
+                    return _accessToken;
+                }
 
-                _accessToken = root.GetProperty("access_token").GetString();
-                int expiresIn = root.GetProperty("expires_in").GetInt32();
+                try
+                {
+                    string url = $"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={_apiKey}&client_secret={_secretKey}";
+                    var response = _client.GetStringAsync(url).GetAwaiter().GetResult();
+                    using var doc = JsonDocument.Parse(response);
+                    var root = doc.RootElement;
 
-                // 提前1小时过期
-                _tokenExpireTime = DateTime.Now.AddSeconds(expiresIn - 3600);
+                    _accessToken = root.GetProperty("access_token").GetString() ?? string.Empty;
+                    int expiresIn = root.GetProperty("expires_in").GetInt32();
 
-                System.Diagnostics.Debug.WriteLine($"Token获取成功，有效期{expiresIn}秒");
-                return _accessToken;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"获取Token失败: {ex.Message}");
-                return "";
+                    // 提前1小时过期
+                    _tokenExpireTime = DateTime.Now.AddSeconds(expiresIn - 3600);
+
+                    System.Diagnostics.Debug.WriteLine($"Token获取成功，有效期{expiresIn}秒");
+                    return _accessToken;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"获取Token失败: {ex.Message}");
+                    return string.Empty;
+                }
             }
         }
     }

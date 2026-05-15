@@ -16,9 +16,9 @@ namespace 发票
 
     public class TemplateItem
     {
-        public string ClassName { get; set; }
-        public string ImageFile { get; set; }
-        public string ROI { get; set; }
+        public string ClassName { get; set; } = string.Empty;
+        public string ImageFile { get; set; } = string.Empty;
+        public string ROI { get; set; } = string.Empty;
     }
 
     // ========== 配置管理器 ==========
@@ -32,7 +32,7 @@ namespace 发票
 
         public static void Save(string configPath, List<TemplateInfo> templates)
         {
-            string baseDir = Path.GetDirectoryName(configPath);
+            string baseDir = Path.GetDirectoryName(configPath) ?? throw new ArgumentException("无效路径", nameof(configPath));
             string imageDir = Path.Combine(baseDir, "images");
             Directory.CreateDirectory(imageDir);
 
@@ -60,16 +60,16 @@ namespace 发票
 
         public static List<TemplateInfo> Load(string configPath)
         {
-            string baseDir = Path.GetDirectoryName(configPath);
+            string baseDir = Path.GetDirectoryName(configPath) ?? throw new ArgumentException("无效路径", nameof(configPath));
             string json = File.ReadAllText(configPath);
-            var config = JsonSerializer.Deserialize<TemplateConfig>(json, JsonOptions);
+            var config = JsonSerializer.Deserialize<TemplateConfig>(json, JsonOptions) ?? new TemplateConfig();
 
             var result = new List<TemplateInfo>();
 
             foreach (var item in config.Templates)
             {
                 string imgPath = Path.Combine(baseDir, item.ImageFile);
-                Image img = File.Exists(imgPath) ? Image.FromFile(imgPath) : null;
+                Image? img = File.Exists(imgPath) ? Image.FromFile(imgPath) : null;
 
                 result.Add(new TemplateInfo
                 {

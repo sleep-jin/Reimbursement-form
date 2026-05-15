@@ -1,7 +1,6 @@
 ﻿using OpenCvSharp;
 using OpenCvSharp.Extensions;
-using static OpenCvSharp.Stitcher;
-using Point= OpenCvSharp.Point;
+using Point = OpenCvSharp.Point;
 
 namespace 发票
 {

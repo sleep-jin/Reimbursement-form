@@ -13,9 +13,9 @@ namespace 发票
 {
     public partial class ExcelShow : Form
     {
-        public string exelpath;
-        List<string> _data = new List<string>();
-        int len = 9;
+        public string? exelpath;
+        private List<string> _data = new List<string>();
+        private int _len = 9;
         public ExcelShow(Dictionary<string, string> dd, int length)
         {
             InitializeComponent();
@@ -23,19 +23,19 @@ namespace 发票
             {
                 _data.Add(item);
             }
-            len = length > len ? length + 2 : 9;
+            _len = length > _len ? length + 2 : 9;
         }
         private void ExcelShow_Load(object sender, EventArgs e)
         {
-            Creation(len);
+            Creation(_len);
         }
         /// <summary>
         /// 创建行列数量
         /// </summary>
         /// <param name="with"></param>
-        public void Creation(int with)
+        public void Creation(int width)
         {
-            for (int i = 0; i < with; i++)
+            for (int i = 0; i < width; i++)
             {
                 dataGridView1.Columns.Add($"类型{i}", $"类型{i}");
             }
@@ -65,15 +65,15 @@ namespace 发票
             InsertData();
             MessageBox.Show("写入完成");
         }
-        ExcelWorksheet ws;
-        ExcelPackage package;
+        private ExcelWorksheet? ws;
+        private ExcelPackage? package;
         /// <summary>
         /// 插入表格
         /// </summary>
         /// <param name="str"></param>
         public void InsertData()
-        {
-            if (ws == null || _data == null || _data.Count == 0) return;
+            {
+                if (ws == null || _data.Count == 0) return;
 
             // 从最后一行开始往前插入，这样前面的行号不会变
             for (int i = _data.Count - 1; i >= 0; i--)
@@ -96,7 +96,7 @@ namespace 发票
                 }
             }
 
-            package.Save();
+            package?.Save();
         }
         private void button3_Click(object sender, EventArgs e)
         {

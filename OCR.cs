@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Drawing.Imaging;
+﻿using System.Drawing.Imaging;
 using System.Text;
 using System.Text.Json;
 
@@ -11,7 +10,7 @@ namespace 发票
         private readonly string _secretKey;
 
         // Token 缓存
-        private string _accessToken;
+        private string _accessToken = string.Empty;
         private DateTime _tokenExpireTime;
 
         public BaiduOCR(string apiKey, string secretKey)
@@ -82,7 +81,7 @@ namespace 发票
                 throw new Exception($"获取Token失败: {error.GetString()}");
             }
 
-            _accessToken = root.GetProperty("access_token").GetString();
+            _accessToken = root.GetProperty("access_token").GetString() ?? string.Empty;
             int expiresIn = root.GetProperty("expires_in").GetInt32(); // 秒
 
             // 提前5分钟过期，避免边界问题
@@ -100,7 +99,7 @@ namespace 发票
 
                 if (root.TryGetProperty("error_code", out _))
                 {
-                    string errorMsg = root.GetProperty("error_msg").GetString();
+                    string? errorMsg = root.GetProperty("error_msg").GetString();
                     Console.WriteLine($"OCR错误 [{root.GetProperty("error_code")}]: {errorMsg}");
                     return "";
                 }
@@ -108,7 +107,7 @@ namespace 发票
                 var sb = new StringBuilder();
                 foreach (var item in root.GetProperty("words_result").EnumerateArray())
                 {
-                    sb.Append(item.GetProperty("words").GetString());
+                    sb.Append(item.GetProperty("words").GetString() ?? string.Empty);
                 }
 
                 return sb.ToString();

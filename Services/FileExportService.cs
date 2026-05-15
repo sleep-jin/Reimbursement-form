@@ -30,7 +30,7 @@ namespace 发票
 
                 // 处理重名
                 int idx = 1;
-                while (!overwrite && File.Exists(destPath) || usedNames.Contains(destName))
+                while ((!overwrite && File.Exists(destPath)) || usedNames.Contains(destName))
                 {
                     destName = $"{name}({idx}).pdf";
                     destPath = Path.Combine(destDir, destName);

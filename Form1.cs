@@ -18,7 +18,7 @@ namespace 发票
     {
         // ========== 百度 OCR 配置 ==========
         // 服务层
-        private OcrService _ocrService;
+        private OcrService? _ocrService;
         private readonly TemplateService _templateService;
         private readonly FileExportService _exportService;
         private string _lastApiKey = "";
@@ -66,9 +66,6 @@ namespace 发票
 
         }
 
-        ExcelWorksheet ws;
-        ExcelPackage package;
-
         /// <summary>
         /// 打开文件夹并将其中的文件列入界面文件列表
         /// </summary>
@@ -94,13 +91,12 @@ namespace 发票
                 FileInfo[] files = info.GetFiles();
                 foreach (FileInfo file in files)
                 {
-                    //Pdf(file.FullName);
-                    PDFdata.Rows.Add(System.IO.Path.GetFileName(file.FullName), file.FullName, "1");
+                    if (!file.Extension.Equals(".pdf", StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    PDFdata.Rows.Add(Path.GetFileName(file.FullName), file.FullName, "1");
                 }
             }
         }
-
-        List<copyfile> list = new List<copyfile>();
 
         /// <summary>
         /// 从 PDF 中提取文本（未用于 UI 流程的辅助方法）
@@ -110,14 +106,12 @@ namespace 发票
             var txt = new System.Text.StringBuilder();
             using (var doc = UglyToad.PdfPig.PdfDocument.Open(path))
             {
-                copyfile copyfile;
-                copyfile.path = path;
                 foreach (var page in doc.GetPages())
                 {
                     foreach (var w in page.GetWords(NearestNeighbourWordExtractor.Instance))
                         txt.Append(w.Text).Append(' ');
                 }
-                string tt = CleanPdfText(txt.ToString());
+                CleanPdfText(txt.ToString());
             }
         }
 
@@ -140,10 +134,14 @@ namespace 发票
         {
             if (PDFdata.Rows.Count == 0 || listBox1.SelectedIndex < 0) return;
 
-            Spire.Pdf.PdfDocument pdf = new Spire.Pdf.PdfDocument();
-            pdf.LoadFromFile(PDFdata.CurrentRow.Cells[1].Value.ToString());
+            string? pdfPath = PDFdata.CurrentRow?.Cells[1].Value?.ToString();
+            string? className = listBox1.SelectedItem?.ToString();
+            if (string.IsNullOrEmpty(pdfPath) || string.IsNullOrEmpty(className)) return;
+
+            using var pdf = new Spire.Pdf.PdfDocument();
+            pdf.LoadFromFile(pdfPath);
             Image image = pdf.SaveAsImage(0, PdfImageType.Bitmap, 600, 600);
-            MakeModes modes = new MakeModes(image, listBox1.SelectedItem.ToString());
+            MakeModes modes = new MakeModes(image, className);
             modes.ShowDialog();
         }
 
@@ -201,13 +199,13 @@ namespace 发票
 
                 btnRename.Click += (s, ev) =>
                 {
-                    if (listBox.SelectedItem == null)
+                    string? oldName = listBox.SelectedItem?.ToString();
+                    if (oldName == null)
                     {
                         MessageBox.Show("请先选择要重命名的分类！", "提示");
                         return;
                     }
 
-                    string oldName = listBox.SelectedItem.ToString();
                     string newName = ShowInputDialog($"将 [{oldName}] 重命名为:", "重命名分类", oldName);
                     if (string.IsNullOrWhiteSpace(newName) || newName == oldName) return;
 
@@ -242,13 +240,12 @@ namespace 发票
 
                 btnDelete.Click += (s, ev) =>
                 {
-                    if (listBox.SelectedItem == null)
+                    string? selectedName = listBox.SelectedItem?.ToString();
+                    if (selectedName == null)
                     {
                         MessageBox.Show("请先选择要删除的分类！", "提示");
                         return;
                     }
-
-                    string selectedName = listBox.SelectedItem.ToString();
                     if (MessageBox.Show($"确定删除分类 [{selectedName}] 吗？\n该分类下的所有模板将被删除！",
                         "确认删除", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                     {
@@ -326,12 +323,18 @@ namespace 发票
                 {
                     try
                     {
-                        string[] str = stringps.FirstOrDefault(s => s.Contains(listBox1.Items[i].ToString())).Split(':');
+                        string? itemText = listBox1.Items[i]?.ToString();
+                        if (itemText == null) continue;
+                        string? line = stringps.FirstOrDefault(s => s.Contains(itemText));
+                        if (line == null) throw new InvalidOperationException();
+                        string[] str = line.Split(':');
                         ExcelFormat.Add(str[0], str[1]);
                     }
                     catch
                     {
-                        ExcelFormat.Add(listBox1.Items[i].ToString(), "");
+                        string? itemText = listBox1.Items[i]?.ToString();
+                        if (itemText != null)
+                            ExcelFormat.Add(itemText, "");
                     }
                 }
 
@@ -341,12 +344,18 @@ namespace 发票
                 {
                     try
                     {
-                        string[] str = ss.FirstOrDefault(s => s.Contains(listBox1.Items[i].ToString())).Split(':');
+                        string? itemText = listBox1.Items[i]?.ToString();
+                        if (itemText == null) continue;
+                        string? line = ss.FirstOrDefault(s => s.Contains(itemText));
+                        if (line == null) throw new InvalidOperationException();
+                        string[] str = line.Split(':');
                         PDFFormat.Add(str[0], str[1]);
                     }
                     catch
                     {
-                        PDFFormat.Add(listBox1.Items[i].ToString(), "");
+                        string? itemText = listBox1.Items[i]?.ToString();
+                        if (itemText != null)
+                            PDFFormat.Add(itemText, "");
                     }
                 }
             }
@@ -375,21 +384,34 @@ namespace 发票
                 return;
             }
 
-            using var pdf = new Spire.Pdf.PdfDocument();
             //读取模板（通过服务）
             classtemp = _templateService.LoadAll();
 
             ExName.Clear(); PDFName.Clear();
+
+            // ========== 进度条初始化 ==========
+            int totalFiles = PDFdata.Rows.Count;
+            int processedFiles = 0;
+            progressBar1.Minimum = 0;
+            progressBar1.Maximum = totalFiles;
+            progressBar1.Value = 0;
+            progressBar1.Visible = true;
+            lblProgress.Text = $"0 / {totalFiles}";
+            lblProgress.Visible = true;
+            Start.Enabled = false; // 防止重复点击
+            Application.DoEvents(); // 刷新UI
+            // ==================================
+
             for (int i = 0; i < PDFdata.Rows.Count; i++)
             {
+                using var pdf = new Spire.Pdf.PdfDocument();
                 var txt = new System.Text.StringBuilder();
-                string path = PDFdata.Rows[i].Cells[1].Value.ToString();
+                string? path = PDFdata.Rows[i].Cells[1].Value?.ToString();
+                if (string.IsNullOrEmpty(path)) continue;
                 pdf.LoadFromFile(path);
                 //文本化开始分类
                 using (var doc = UglyToad.PdfPig.PdfDocument.Open(path))
                 {
-                    copyfile copyfile;
-                    copyfile.path = path;
                     foreach (var page in doc.GetPages())
                     {
                         foreach (var w in page.GetWords(NearestNeighbourWordExtractor.Instance))
@@ -399,41 +421,61 @@ namespace 发票
                     //分类
                     for (int j = 0; j < listBox1.Items.Count; j++)
                     {
-                        if (tt.Contains(listBox1.Items[j].ToString()))
+                        string? className = listBox1.Items[j]?.ToString();
+                        if (className == null) continue;
+                        if (tt.Contains(className))
                         {
-                            List<TemplateItem> templates = classtemp[listBox1.Items[j].ToString()];
+                            if (!classtemp.TryGetValue(className, out List<TemplateItem>? templates) || templates == null)
+                                continue;
 
                             using var image = pdf.SaveAsImage(0, PdfImageType.Bitmap, 600, 600);//图片化
                             List<string> strs = new List<string>();
                             for (int k = 0; k < templates.Count; k++)
                             {
-                                string tempImagepath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", listBox1.Items[j].ToString(), templates[k].ImageFile);
+                                string tempImagepath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates", className, templates[k].ImageFile);
                                 using var srcBmp = new Bitmap(image);
                                 using var tempBmp = new Bitmap(tempImagepath);
                                 using var bitmap = GetRectangle(srcBmp, tempBmp, templates[k], testMode.Checked);
                                 // 使用服务层 OCR
-                                strs.Add(_ocrService.Recognize(bitmap));
+                                strs.Add(_ocrService!.Recognize(bitmap));
                             }
-                            string Excelfomat = ExcelFormat[listBox1.Items[j].ToString()];
-                            string Pdffomat = PDFFormat[listBox1.Items[j].ToString()];
+                            if (!ExcelFormat.TryGetValue(className, out string? excelFormat) || excelFormat == null)
+                                continue;
+                            if (!PDFFormat.TryGetValue(className, out string? pdfFormat) || pdfFormat == null)
+                                continue;
                             try
                             {
                                 //填入格式中
-                                string ExcelFomat = string.Format(Excelfomat, strs.ToArray());
-                                string pdffomat = string.Format(Pdffomat, strs.ToArray());
+                                string excelResult = string.Format(excelFormat, strs.ToArray());
+                                string pdfResult = string.Format(pdfFormat, strs.ToArray());
 
                                 PDFdata.Rows[i].Selected = true;//界面上显示进度
-                                ExName.Add(path, ExcelFomat);
-                                PDFName.Add(path, pdffomat);
+                                ExName.Add(path, excelResult);
+                                PDFName.Add(path, pdfResult);
                             }
                             catch (FormatException)
                             {
-                                MessageBox.Show($"{listBox1.Items[j].ToString()}: 模板数量与格式填写的数量不相等,无法写入请正确填写");
+                                MessageBox.Show($"{className}: 模板数量与格式填写的数量不相等,无法写入请正确填写");
                             }
                         }
                     }
                 }
+
+                // ========== 更新进度 ==========
+                processedFiles++;
+                progressBar1.Value = processedFiles;
+                lblProgress.Text = $"{processedFiles} / {totalFiles}";
+                PDFdata.FirstDisplayedScrollingRowIndex = i; // 自动滚动到当前行
+                Application.DoEvents(); // 刷新UI，让进度条动起来
+                // ==============================
             }
+
+            // ========== 识别完成，恢复状态 ==========
+            Start.Enabled = true;
+            progressBar1.Value = progressBar1.Maximum;
+            lblProgress.Text = $"完成: {processedFiles} / {totalFiles}";
+            // =======================================
+
             MessageBox.Show("识别结束");
         }
         Dictionary<string, string> ExName = new Dictionary<string, string>();
@@ -446,8 +488,14 @@ namespace 发票
         public Bitmap GetRectangle(Bitmap image, Bitmap temp, TemplateItem template, bool test)
         {
             string[] strs = template.ROI.Split(',');
+            if (strs.Length != 4)
+                throw new FormatException($"ROI 格式错误: {template.ROI}，期望格式为 X,Y,Width,Height");
             OpenCvSharp.Point point = OpterCV.RetancROI(image, temp, test);
-            Rectangle rectangle = new Rectangle(point.X + int.Parse(strs[0]), point.Y + int.Parse(strs[1]), int.Parse(strs[2]), int.Parse(strs[3]));
+            Rectangle rectangle = new Rectangle(
+                point.X + int.Parse(strs[0]),
+                point.Y + int.Parse(strs[1]),
+                int.Parse(strs[2]),
+                int.Parse(strs[3]));
             return OpterCV.CropImage(image, rectangle);
         }
         /// <summary>
@@ -462,12 +510,11 @@ namespace 发票
 
         private void setTXTFomat_Click(object sender, EventArgs e)
         {
-            if (listBox1.SelectedIndex != -1)
-            {
-                ExcelFormat[listBox1.SelectedItem.ToString()] = txtFomatbox.Text;
-                PDFFormat[listBox1.SelectedItem.ToString()] = PDFfomat.Text;
-                RefreshFormat();
-            }
+            string? key = listBox1.SelectedItem?.ToString();
+            if (key == null) return;
+            ExcelFormat[key] = txtFomatbox.Text;
+            PDFFormat[key] = PDFfomat.Text;
+            RefreshFormat();
         }
         #region
         Dictionary<string, string> ExcelFormat = new Dictionary<string, string>();
@@ -520,8 +567,8 @@ namespace 发票
             string key = listBox1.SelectedItem?.ToString();
             if (key == null) return;
 
-            txtFomatbox.Text = ExcelFormat[key];
-            PDFfomat.Text = PDFFormat[key];
+            txtFomatbox.Text = ExcelFormat.TryGetValue(key, out var excelFmt) ? excelFmt : "";
+            PDFfomat.Text = PDFFormat.TryGetValue(key, out var pdfFmt) ? pdfFmt : "";
             StringBuilder sb = new StringBuilder();
             sb.AppendLine(key + ": ");
 
@@ -588,150 +635,4 @@ namespace 发票
             excel.ShowDialog();
         }
     }
-    /// <summary>
-    /// 模板根对象，用于从 JSON 反序列化模板列表
-    /// </summary>
-    public class TemplateRoot
-    {
-        public List<TemplateItem> Templates { get; set; }
-    }
-    /// <summary>
-    /// 同步调用百度 OCR 服务的简易客户端（注意：建议将其改为异步并添加并发保护）
-    /// </summary>
-    // ========== 百度OCR同步客户端 ==========
-    public class BaiduOcrSync
-    {
-        private readonly string _apiKey;
-        private readonly string _secretKey;
-        private string _accessToken = "";
-        private DateTime _tokenExpireTime = DateTime.MinValue;
-        private static readonly HttpClient _client = new HttpClient();
-
-        public BaiduOcrSync(string apiKey, string secretKey)
-        {
-            _apiKey = apiKey;
-            _secretKey = secretKey;
-        }
-
-        /// <summary>
-        /// 传入Bitmap，返回识别字符
-        /// </summary>
-        public string Recognize(Bitmap bitmap)
-        {
-            using (var ms = new MemoryStream())
-            {
-                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                return RecognizeBytes(ms.ToArray());
-            }
-        }
-
-        /// <summary>
-        /// 传入图片路径，返回识别字符
-        /// </summary>
-        public string Recognize(string imagePath)
-        {
-            byte[] bytes = File.ReadAllBytes(imagePath);
-            return RecognizeBytes(bytes);
-        }
-
-        /// <summary>
-        /// 传入byte数组，返回识别字符
-        /// </summary>
-        public string RecognizeBytes(byte[] imageBytes)
-        {
-            string base64 = Convert.ToBase64String(imageBytes);
-            return RecognizeBase64(base64);
-        }
-
-        private string RecognizeBase64(string base64Image)
-        {
-            // 获取有效Token
-            string token = GetAccessToken();
-            if (string.IsNullOrEmpty(token)) return "";
-
-            string url = $"https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token={token}";
-
-            var content = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("image", base64Image)
-            });
-            var response = _client.PostAsync(url, content).GetAwaiter().GetResult();//发送请求
-            string json = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-
-            return ParseText(json);
-        }
-
-        private string ParseText(string json)
-        {
-            try
-            {
-                using var doc = JsonDocument.Parse(json);
-                var root = doc.RootElement;
-
-                // 错误处理
-                if (root.TryGetProperty("error_code", out _))
-                {
-                    System.Diagnostics.Debug.WriteLine($"OCR错误: {root.GetProperty("error_msg").GetString()}");
-                    return "";
-                }
-
-                // 拼接字符
-                var sb = new StringBuilder();
-                foreach (var item in root.GetProperty("words_result").EnumerateArray())
-                {
-                    sb.Append(item.GetProperty("words").GetString());
-                }
-
-                return sb.ToString();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"解析失败: {ex.Message}");
-                return "";
-            }
-        }
-
-        /// <summary>
-        /// 获取百度Access Token（带缓存）
-        /// </summary>
-        private string GetAccessToken()
-        {
-            // 缓存有效直接返回
-            if (!string.IsNullOrEmpty(_accessToken) && DateTime.Now < _tokenExpireTime)
-            {
-                return _accessToken;
-            }
-
-            try
-            {
-                string url = $"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={_apiKey}&client_secret={_secretKey}";
-                var response = _client.GetStringAsync(url).GetAwaiter().GetResult();
-                using var doc = JsonDocument.Parse(response);
-                var root = doc.RootElement;
-
-                _accessToken = root.GetProperty("access_token").GetString();
-                int expiresIn = root.GetProperty("expires_in").GetInt32();
-
-                // 提前1小时过期
-                _tokenExpireTime = DateTime.Now.AddSeconds(expiresIn - 3600);
-
-                System.Diagnostics.Debug.WriteLine($"Token获取成功，有效期{expiresIn}秒");
-                return _accessToken;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"获取Token失败: {ex.Message}");
-                return "";
-            }
-        }
-    }
-}
-
-/// <summary>
-/// 简单的文件路径结构体（用于临时传递路径）
-/// </summary>
-public struct copyfile
-{
-    public string path;
-    public string toname;
 }

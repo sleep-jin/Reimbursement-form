@@ -56,6 +56,8 @@ namespace 发票
             textBox4 = new TextBox();
             label4 = new Label();
             label5 = new Label();
+            progressBar1 = new ProgressBar();
+            lblProgress = new Label();
             ((System.ComponentModel.ISupportInitialize)PDFdata).BeginInit();
             SuspendLayout();
             // 
@@ -312,12 +314,33 @@ namespace 发票
             label5.TabIndex = 26;
             label5.Text = "BAIDU_SECRET_KEY";
             // 
+            // progressBar1
+            // 
+            progressBar1.Location = new Point(14, 580);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(471, 25);
+            progressBar1.TabIndex = 27;
+            progressBar1.Minimum = 0;
+            progressBar1.Maximum = 100;
+            progressBar1.Value = 0;
+            // 
+            // lblProgress
+            // 
+            lblProgress.AutoSize = true;
+            lblProgress.Location = new Point(495, 582);
+            lblProgress.Name = "lblProgress";
+            lblProgress.Size = new Size(82, 24);
+            lblProgress.TabIndex = 28;
+            lblProgress.Text = "0 / 0";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(11F, 24F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1197, 669);
             Controls.Add(label5);
+            Controls.Add(progressBar1);
+            Controls.Add(lblProgress);
             Controls.Add(label4);
             Controls.Add(textBox4);
             Controls.Add(textBox3);
@@ -377,5 +400,7 @@ namespace 发票
         private TextBox textBox4;
         private Label label4;
         private Label label5;
+        private ProgressBar progressBar1;
+        private Label lblProgress;
     }
 }
