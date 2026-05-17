@@ -60,10 +60,10 @@ namespace 发票
             button1 = new Sunny.UI.UIButton();
             Button2 = new Sunny.UI.UIButton();
             PDFdata = new Sunny.UI.UIDataGridView();
-            checkBox1 = new CheckBox();
             Column1 = new DataGridViewTextBoxColumn();
             Column2 = new DataGridViewTextBoxColumn();
             Column3 = new DataGridViewTextBoxColumn();
+            checkBox1 = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)PDFdata).BeginInit();
             SuspendLayout();
             // 
@@ -118,7 +118,7 @@ namespace 发票
             Start.Name = "Start";
             Start.Size = new Size(143, 32);
             Start.TabIndex = 11;
-            Start.Text = " 开始运行";
+            Start.Text = " 开始识别";
             Start.TipsFont = new Font("宋体", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
             Start.Click += Start_Click;
             // 
@@ -133,7 +133,7 @@ namespace 发票
             txtFomatbox.ShowText = false;
             txtFomatbox.Size = new Size(363, 35);
             txtFomatbox.TabIndex = 12;
-            txtFomatbox.Text = "打车-{0}_{1}-{2}_{3}";
+            txtFomatbox.Text = "XX-{0}_{1}-{2}_{3}";
             txtFomatbox.TextAlignment = ContentAlignment.MiddleLeft;
             txtFomatbox.Watermark = "";
             // 
@@ -223,7 +223,7 @@ namespace 发票
             PDFfomat.ShowText = false;
             PDFfomat.Size = new Size(363, 35);
             PDFfomat.TabIndex = 20;
-            PDFfomat.Text = "打车-{0}_{1}-{2}_{3}";
+            PDFfomat.Text = "XX-{0}_{1}-{2}_{3}";
             PDFfomat.TextAlignment = ContentAlignment.MiddleLeft;
             PDFfomat.Watermark = "";
             // 
@@ -435,19 +435,6 @@ namespace 发票
             PDFdata.StripeOddColor = Color.FromArgb(192, 255, 255);
             PDFdata.TabIndex = 34;
             // 
-            // checkBox1
-            // 
-            checkBox1.AutoSize = true;
-            checkBox1.Checked = true;
-            checkBox1.CheckState = CheckState.Checked;
-            checkBox1.Location = new Point(332, 488);
-            checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(132, 28);
-            checkBox1.TabIndex = 35;
-            checkBox1.Text = "存储密钥";
-            checkBox1.UseVisualStyleBackColor = true;
-            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
-            // 
             // Column1
             // 
             Column1.HeaderText = "发票";
@@ -467,6 +454,19 @@ namespace 发票
             Column3.MinimumWidth = 8;
             Column3.Name = "Column3";
             Column3.Visible = false;
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Checked = true;
+            checkBox1.CheckState = CheckState.Checked;
+            checkBox1.Location = new Point(332, 488);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(132, 28);
+            checkBox1.TabIndex = 35;
+            checkBox1.Text = "存储密钥";
+            checkBox1.UseVisualStyleBackColor = true;
+            checkBox1.CheckedChanged += checkBox1_CheckedChanged;
             // 
             // Form1
             // 

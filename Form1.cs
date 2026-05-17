@@ -146,6 +146,7 @@ namespace 发票
             Image image = pdf.SaveAsImage(0, PdfImageType.Bitmap, 600, 600);
             MakeModes modes = new MakeModes(image, className);
             modes.ShowDialog();
+            classtemp = _templateService.LoadAll();//重新载入模板
         }
 
         private string templatesDir = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Templates");
@@ -370,7 +371,7 @@ namespace 发票
         private void Start_Click(object sender, EventArgs e)
         {
             Start.Enabled = false;
-            Start.Text = "正在运行中";
+            Start.Text = "正在识别";
             Task.Run(() =>
              {
                  // 验证并初始化 OCR 服务
@@ -492,17 +493,20 @@ namespace 发票
                  progressBar1.Value = progressBar1.Maximum;
                  lblProgress.Text = $"完成: {processedFiles} / {totalFiles}";
                  // =======================================
-                 if (MessageBox.Show($"识别结束,分类失败{ErrorPaths.Count}个。是否移动到Error位置", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                 this.Invoke(() =>
                  {
-                     string destpeth = textBox1.Text + "\\Error";
-                     Directory.CreateDirectory(textBox1.Text + "\\Error");
-                     foreach (var item in ErrorPaths)
+                     if (MessageBox.Show($"识别结束,分类失败{ErrorPaths.Count}个。是否移动到Error位置", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                      {
-                         File.Move(item, destpeth + "\\" + Path.GetFileName(item));
+                         string destpeth = textBox1.Text + "\\Error";
+                         Directory.CreateDirectory(textBox1.Text + "\\Error");
+                         foreach (var item in ErrorPaths)
+                         {
+                             File.Move(item, destpeth + "\\" + Path.GetFileName(item));
+                         }
                      }
-                 }
-                 Start.Enabled = true;
-                 Start.Text = "开始运行";
+                     Start.Enabled = true;
+                     Start.Text = "开始识别";
+                 });
              });
         }
         Dictionary<string, string> ExName = new Dictionary<string, string>();
