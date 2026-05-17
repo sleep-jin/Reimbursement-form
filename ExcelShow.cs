@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace 发票
 {
-    public partial class ExcelShow : Form
+    public partial class ExcelShow : Sunny.UI.UIForm
     {
         public string? exelpath;
         private List<string> _data = new List<string>();

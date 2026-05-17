@@ -9,9 +9,9 @@ namespace 发票
     {
         private readonly BaiduOcrSync _client;
 
-        public OcrService(string apiKey, string secret)
+        public OcrService(string apiKey, string secret,bool choese=false)
         {
-            _client = new BaiduOcrSync(apiKey, secret);
+            _client = new BaiduOcrSync(apiKey, secret, choese);
         }
 
         public string Recognize(Bitmap bitmap)

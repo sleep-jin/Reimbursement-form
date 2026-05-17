@@ -28,95 +28,168 @@
         /// </summary>
         private void InitializeComponent()
         {
-            dataGridView1 = new DataGridView();
-            textBox1 = new TextBox();
-            label1 = new Label();
-            label2 = new Label();
-            textBox2 = new TextBox();
-            InputExcel = new Button();
-            button3 = new Button();
-            textBox4 = new TextBox();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle2 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle5 = new DataGridViewCellStyle();
+            dataGridView1 = new Sunny.UI.UIDataGridView();
+            textBox1 = new Sunny.UI.UITextBox();
+            label1 = new Sunny.UI.UILabel();
+            label2 = new Sunny.UI.UILabel();
+            textBox2 = new Sunny.UI.UITextBox();
+            InputExcel = new Sunny.UI.UIButton();
+            button3 = new Sunny.UI.UIButton();
+            textBox4 = new Sunny.UI.UITextBox();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
             // dataGridView1
             // 
+            dataGridViewCellStyle1.BackColor = Color.FromArgb(235, 243, 255);
+            dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridView1.BackgroundColor = SystemColors.ButtonShadow;
+            dataGridView1.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+            dataGridViewCellStyle2.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.BackColor = Color.FromArgb(80, 160, 255);
+            dataGridViewCellStyle2.Font = new Font("宋体", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            dataGridViewCellStyle2.ForeColor = Color.White;
+            dataGridViewCellStyle2.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = DataGridViewTriState.True;
+            dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Location = new Point(3, 4);
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = SystemColors.Window;
+            dataGridViewCellStyle3.Font = new Font("宋体", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            dataGridViewCellStyle3.ForeColor = Color.FromArgb(48, 48, 48);
+            dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
+            dataGridView1.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridView1.EnableHeadersVisualStyles = false;
+            dataGridView1.Font = new Font("宋体", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            dataGridView1.GridColor = Color.FromArgb(80, 160, 255);
+            dataGridView1.Location = new Point(3, 38);
             dataGridView1.Name = "dataGridView1";
+            dataGridView1.RowHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single;
+            dataGridViewCellStyle4.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = Color.FromArgb(235, 243, 255);
+            dataGridViewCellStyle4.Font = new Font("宋体", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            dataGridViewCellStyle4.ForeColor = Color.FromArgb(48, 48, 48);
+            dataGridViewCellStyle4.SelectionBackColor = Color.FromArgb(80, 160, 255);
+            dataGridViewCellStyle4.SelectionForeColor = Color.White;
+            dataGridViewCellStyle4.WrapMode = DataGridViewTriState.True;
+            dataGridView1.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
             dataGridView1.RowHeadersWidth = 62;
+            dataGridViewCellStyle5.BackColor = Color.White;
+            dataGridViewCellStyle5.Font = new Font("宋体", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            dataGridView1.RowsDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridView1.SelectedIndex = -1;
             dataGridView1.Size = new Size(1330, 625);
+            dataGridView1.StripeOddColor = Color.FromArgb(235, 243, 255);
             dataGridView1.TabIndex = 0;
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(118, 645);
+            textBox1.DoubleValue = 12D;
+            textBox1.Font = new Font("宋体", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            textBox1.IntValue = 12;
+            textBox1.Location = new Point(140, 671);
+            textBox1.Margin = new Padding(4, 5, 4, 5);
+            textBox1.MinimumSize = new Size(1, 16);
             textBox1.Name = "textBox1";
+            textBox1.Padding = new Padding(5);
+            textBox1.ShowText = false;
             textBox1.Size = new Size(80, 30);
             textBox1.TabIndex = 1;
             textBox1.Text = "12";
+            textBox1.TextAlignment = ContentAlignment.MiddleLeft;
+            textBox1.Watermark = "";
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(12, 648);
+            label1.Font = new Font("宋体", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            label1.ForeColor = Color.FromArgb(48, 48, 48);
+            label1.Location = new Point(3, 677);
             label1.Name = "label1";
-            label1.Size = new Size(100, 24);
+            label1.Size = new Size(130, 24);
             label1.TabIndex = 2;
             label1.Text = "导入起始行";
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(213, 648);
+            label2.Font = new Font("宋体", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            label2.ForeColor = Color.FromArgb(48, 48, 48);
+            label2.Location = new Point(270, 677);
             label2.Name = "label2";
-            label2.Size = new Size(100, 24);
+            label2.Size = new Size(130, 24);
             label2.TabIndex = 4;
             label2.Text = "导入起始列";
             // 
             // textBox2
             // 
-            textBox2.Location = new Point(319, 645);
+            textBox2.DoubleValue = 1D;
+            textBox2.Font = new Font("宋体", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            textBox2.IntValue = 1;
+            textBox2.Location = new Point(407, 671);
+            textBox2.Margin = new Padding(4, 5, 4, 5);
+            textBox2.MinimumSize = new Size(1, 16);
             textBox2.Name = "textBox2";
+            textBox2.Padding = new Padding(5);
+            textBox2.ShowText = false;
             textBox2.Size = new Size(80, 30);
             textBox2.TabIndex = 3;
             textBox2.Text = "1";
+            textBox2.TextAlignment = ContentAlignment.MiddleLeft;
+            textBox2.Watermark = "";
             // 
             // InputExcel
             // 
-            InputExcel.Location = new Point(444, 645);
+            InputExcel.Font = new Font("宋体", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            InputExcel.Location = new Point(557, 669);
             InputExcel.Margin = new Padding(5, 4, 5, 4);
+            InputExcel.MinimumSize = new Size(1, 1);
             InputExcel.Name = "InputExcel";
             InputExcel.Size = new Size(143, 32);
             InputExcel.TabIndex = 18;
             InputExcel.Text = "导入表格";
-            InputExcel.UseVisualStyleBackColor = true;
+            InputExcel.TipsFont = new Font("宋体", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
             InputExcel.Click += InputExcel_Click;
             // 
             // button3
             // 
-            button3.Location = new Point(1078, 645);
+            button3.Font = new Font("宋体", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            button3.Location = new Point(1190, 671);
             button3.Margin = new Padding(5, 4, 5, 4);
+            button3.MinimumSize = new Size(1, 1);
             button3.Name = "button3";
             button3.Size = new Size(143, 32);
             button3.TabIndex = 20;
             button3.Text = "选择表格";
-            button3.UseVisualStyleBackColor = true;
+            button3.TipsFont = new Font("宋体", 9F, FontStyle.Regular, GraphicsUnit.Point, 134);
             button3.Click += button3_Click;
             // 
             // textBox4
             // 
-            textBox4.Location = new Point(597, 648);
+            textBox4.Font = new Font("宋体", 12F, FontStyle.Regular, GraphicsUnit.Point, 134);
+            textBox4.Location = new Point(710, 671);
             textBox4.Margin = new Padding(5, 4, 5, 4);
+            textBox4.MinimumSize = new Size(1, 16);
             textBox4.Name = "textBox4";
+            textBox4.Padding = new Padding(5);
+            textBox4.ShowText = false;
             textBox4.Size = new Size(471, 30);
             textBox4.TabIndex = 19;
+            textBox4.TextAlignment = ContentAlignment.MiddleLeft;
+            textBox4.Watermark = "";
             // 
             // ExcelShow
             // 
-            AutoScaleDimensions = new SizeF(11F, 24F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1336, 710);
+            AutoScaleMode = AutoScaleMode.None;
+            ClientSize = new Size(1336, 721);
             Controls.Add(button3);
             Controls.Add(textBox4);
             Controls.Add(InputExcel);
@@ -127,6 +200,7 @@
             Controls.Add(dataGridView1);
             Name = "ExcelShow";
             Text = "ExcelShow";
+            ZoomScaleRect = new Rectangle(22, 22, 1336, 710);
             Load += ExcelShow_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
@@ -135,13 +209,13 @@
 
         #endregion
 
-        private DataGridView dataGridView1;
-        private TextBox textBox1;
-        private Label label1;
-        private Label label2;
-        private TextBox textBox2;
-        private Button InputExcel;
-        private Button button3;
-        private TextBox textBox4;
+        private Sunny.UI.UIDataGridView dataGridView1;
+        private Sunny.UI.UITextBox textBox1;
+        private Sunny.UI.UILabel label1;
+        private Sunny.UI.UILabel label2;
+        private Sunny.UI.UITextBox textBox2;
+        private Sunny.UI.UIButton InputExcel;
+        private Sunny.UI.UIButton button3;
+        private Sunny.UI.UITextBox textBox4;
     }
 }
